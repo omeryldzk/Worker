@@ -3,21 +3,7 @@ from google.cloud import storage
 import json
 from flask import Flask, jsonify
 import os
-from google.cloud import secretmanager
-from dotenv import load_dotenv
 
-
-load_dotenv()
-
-# Read the service account key from an environment variable
-service_account_key = os.getenv("GCP_SA_KEY")
-if service_account_key:
-    with open("/tmp/service_account.json", "w") as key_file:
-        key_file.write(service_account_key)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/service_account.json"
-
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/service_account.json"
 
 app = Flask(__name__)
 
