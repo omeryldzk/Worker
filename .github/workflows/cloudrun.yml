@@ -63,4 +63,6 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --timeout 3600 \
+            --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=/app/service_account.json 
+
 
