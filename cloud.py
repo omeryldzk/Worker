@@ -4,8 +4,20 @@ import json
 from flask import Flask, jsonify
 import os
 
-# Path to the service account JSON key inside the container
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "/app/service_account.json")
+from google.cloud import secretmanager
+
+def fetch_service_account_key():
+    secret_client = secretmanager.SecretManagerServiceClient()
+    secret_name = "projects/936574418751/secrets/github_cloud_run/versions/latest"
+    response = secret_client.access_secret_version(name=secret_name)
+    return response.payload.data.decode("UTF-8")
+
+# Set the GOOGLE_APPLICATION_CREDENTIALS environment variable dynamically
+service_account_key = fetch_service_account_key()
+with open("/tmp/service_account.json", "w") as key_file:
+    key_file.write(service_account_key)
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/service_account.json"
 
 app = Flask(__name__)
 
