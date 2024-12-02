@@ -3,19 +3,19 @@ from google.cloud import storage
 import json
 from flask import Flask, jsonify
 import os
-
 from google.cloud import secretmanager
+from dotenv import load_dotenv
 
-def fetch_service_account_key():
-    secret_client = secretmanager.SecretManagerServiceClient()
-    secret_name = "projects/936574418751/secrets/github_cloud_run/versions/latest"
-    response = secret_client.access_secret_version(name=secret_name)
-    return response.payload.data.decode("UTF-8")
 
-# Set the GOOGLE_APPLICATION_CREDENTIALS environment variable dynamically
-service_account_key = fetch_service_account_key()
-with open("/tmp/service_account.json", "w") as key_file:
-    key_file.write(service_account_key)
+load_dotenv()
+
+# Read the service account key from an environment variable
+service_account_key = os.getenv("GCP_SA_KEY")
+if service_account_key:
+    with open("/tmp/service_account.json", "w") as key_file:
+        key_file.write(service_account_key)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/service_account.json"
+
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/service_account.json"
 

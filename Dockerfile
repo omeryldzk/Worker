@@ -13,6 +13,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
+# Copy the service account key file into the container
+COPY service_account.json /app/service_account.json
+
+# Set the environment variable for Google Cloud credentials
+ENV GOOGLE_APPLICATION_CREDENTIALS="/app/service_account.json"
+
 # Expose the port the app runs on
 EXPOSE 8080
 
