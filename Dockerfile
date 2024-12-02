@@ -13,13 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
-# Pass and write the service account key during the build
-ARG GOOGLE_APPLICATION_CREDENTIALS
-RUN echo "$GOOGLE_APPLICATION_CREDENTIALS" > /app/service_account.json
-
-# Set environment variables
-ENV GOOGLE_APPLICATION_CREDENTIALS="/app/service_account.json"
-
 # Expose the port the app runs on
 EXPOSE 8080
 
