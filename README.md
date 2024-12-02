@@ -23,8 +23,8 @@ This project is a Flask application that fetches league information from a Cloud
 ### 1. Clone the repository
 
 ```sh
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/omeryldzk/worker.git
+cd worker
 ```
 
 ### 2. Install dependencies
@@ -166,8 +166,6 @@ jobs:
 ### 3. Change your Default Google Cloud service account role
   #### Roles
 - Artifact Registry Writer
-- Cloud Build Editor
-- Cloud Run Admin
 - Storage Admin
   
 ## Usage
@@ -180,7 +178,7 @@ Send a POST request to the `/trigger-worker` endpoint to trigger the worker:
 curl -X POST https://<cloudrunurl>.us-central1.run.app/trigger-worker
 ```
 ## Discussion
-Dont forget to change default google cloud service account role.Beacuse the service account you provided only responsible for deploying the container default service account will build the project from the artifact registry
+Dont forget to change default google cloud service account role.Beacuse the service account you provided only responsible for deploying the container default service account will build the project from the artifact registry and need acces to buckets
 
 ## License
 
@@ -193,4 +191,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **Deployment**: Steps to store the service account key as a GitHub secret and create a GitHub Actions workflow for building, pushing, and deploying the Docker image to Google Cloud Run.
 - **Usage**: Instructions for triggering the worker via an HTTP request.
 
-Make sure to replace `your-username` and `your-repo` with your actual GitHub username and repository name. This `README.md` file provides an overview of the project, setup instructions, deployment steps, and usage information.
