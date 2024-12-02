@@ -5,7 +5,7 @@ from flask import Flask, jsonify
 import os
 
 # Path to the service account JSON key inside the container
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "${{ secrets.GCP_SA_KEY }}"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "/app/service_account.json")
 
 app = Flask(__name__)
 
