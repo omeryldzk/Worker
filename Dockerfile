@@ -4,9 +4,6 @@ FROM python:3.11-slim
 # Set the working directory in the container
 WORKDIR /app
 
-ENV HOST 0.0.0.0
-ENV PORT 8080
-
 # Copy the requirements file into the container
 COPY requirements.txt .
 

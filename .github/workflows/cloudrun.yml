@@ -1,13 +1,14 @@
-name: Build || Push || Deploy Flask App
+name: Build || Push || Deploy Cloud
 
 on:
   push:
     branches: [ "deploy" ]
+    # Build and push image to Google Container Registry
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: us-central1
-  SERVICE_NAME: my-flask-app
+  SERVICE_NAME: worker-api
 
 jobs:
   build:
@@ -15,53 +16,74 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@main
 
-      # Authenticate with Google Cloud
-      - name: Set up Google Cloud Authentication
-        id: auth
-        uses: google-github-actions/auth@v0.4.0
+     # Step 2: Set up Python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          python-version: '3.11'
 
-      # Configure Docker for Google Cloud
-      - name: Configure Docker Authentication
-        run: gcloud auth configure-docker
-
-      - name: Decode service account key
+      # Step 3: Install dependencies
+      - name: Install Dependencies
         run: |
-          echo "${{ secrets.SERVICE_ACCOUNT_JSON }}" | base64 --decode > service_account.json
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 5: Package the application
+      - name: Package Application
+        run: |
+          mkdir build
+          cp -R * build/
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: service_account.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Build and push Docker image
-        run: docker build --platform linux/amd64 --build-arg GOOGLE_APPLICATION_CREDENTIALS=service_account.json -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:$GITHUB_SHA .  --no-cache
-        
-      # Push the Docker image to Google Container Registry
-      - name: Push Docker Image
-        run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:$GITHUB_SHA
-
-  deploy:
-    name: Deploy to Cloud Run
+      # Step 6: Archive the artifact
+      - name: Archive Production Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flask-build
+          path: build/
+      
+  deploy-gcr:
+    name: Deploy to GCR
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      # Authenticate with Google Cloud
-      - name: Set up Google Cloud Authentication
+      - name: Checkout Repo
+        uses: actions/checkout@main
+
+      - name: Download Artifact
+        uses: actions/download-artifact@main
+        with:
+          name: build
+          path: .
+
+      - name: Setup GCloud Auth
         id: auth
         uses: google-github-actions/auth@v0.4.0
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # Deploy to Cloud Run
-      - name: Deploy to Cloud Run
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          
+      # Build and push image to Google Container Registry
+      - name: Build & Push
         run: |-
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:$GITHUB_SHA \
-            --region ${{ env.REGION }} \
-            --platform managed \
-            --set-env-vars GCP_SA_KEY=${{ secrets.GCP_SA_KEY }} \
-            --timeout 3600
+          gcloud builds submit \
+            --quiet \
+            --tag "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
+
+      # Deploy image to Cloud Run
+      - name: Deploy GCR
+        run: |-
+          gcloud run deploy "$SERVICE_NAME" \
+            --quiet \
+            --region "$REGION" \
+            --image "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA" \
+            --platform "managed" \
