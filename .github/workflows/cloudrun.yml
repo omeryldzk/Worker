@@ -32,10 +32,13 @@ jobs:
           pip install -r requirements.txt
 
       # Step 5: Package the application
+            # Step 5: Package the application
       - name: Package Application
         run: |
-          mkdir build
-          cp -R * build/
+          mkdir -p build
+          # Copy all files except the 'build' directory into 'build/'
+          rsync -av --exclude build/ . build/
+
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
@@ -71,7 +74,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0.2.1
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          
+
       # Build and push image to Google Container Registry
       - name: Build & Push
         run: |-
