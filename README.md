@@ -1,5 +1,5 @@
 
-```markdown
+
 # Football API Worker
 
 This project is a Flask application that fetches league information from a Cloud Run API and uploads it to Google Cloud Storage. The application is containerized using Docker and can be deployed to Google Cloud Run.
