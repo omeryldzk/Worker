@@ -17,11 +17,12 @@ COPY . .
 ARG GOOGLE_APPLICATION_CREDENTIALS
 RUN echo "$GOOGLE_APPLICATION_CREDENTIALS" > /app/service_account.json
 
-# Set the environment variable for Google Cloud credentials
+# Set environment variables
 ENV GOOGLE_APPLICATION_CREDENTIALS="/app/service_account.json"
+ENV FLASK_APP=cloud.py
 
 # Expose the port the app runs on
 EXPOSE 8080
 
-# Define the command to run the application
-CMD ["python", "cloud.py"]
+# Define the command to start Flask
+CMD ["flask", "run", "--host=0.0.0.0", "--port=8080"]
