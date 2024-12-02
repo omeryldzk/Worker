@@ -4,6 +4,8 @@ FROM python:3.11-slim
 # Set the working directory in the container
 WORKDIR /app
 
+ENV HOST 0.0.0.0
+
 # Copy the requirements file into the container
 COPY requirements.txt .
 
@@ -22,7 +24,7 @@ ENV GOOGLE_APPLICATION_CREDENTIALS="/app/service_account.json"
 ENV FLASK_APP=cloud.py
 
 # Expose the port the app runs on
-EXPOSE 8080
+EXPOSE 8081
 
 # Define the command to start Flask
-CMD ["flask", "run", "--host=0.0.0.0", "--port=8080"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=8081"]
