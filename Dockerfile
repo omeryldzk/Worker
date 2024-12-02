@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.11-slim
+FROM python:3.11-slim AS base
 
 # Set the working directory in the container
 WORKDIR /app
@@ -16,12 +16,15 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 8080
 
+# Define the command to run the application
+CMD ["python", "cloud.py"]
+
+# Stage to handle the service account key
+FROM base AS final
+
 # Use the credentials passed during build
 ARG GOOGLE_APPLICATION_CREDENTIALS
 COPY ${GOOGLE_APPLICATION_CREDENTIALS} /app/service_account.json
 
 # Set the environment variable for Google Cloud credentials
 ENV GOOGLE_APPLICATION_CREDENTIALS="/app/service_account.json"
-
-# Define the command to run the application
-CMD ["python", "cloud.py"]
