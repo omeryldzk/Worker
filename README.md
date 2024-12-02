@@ -164,7 +164,7 @@ jobs:
 
 ```
 ### 3. Change your Default Google Cloud service account role
-  # Roles
+  #### Roles
 - Artifact Registry Writer
 - Cloud Build Editor
 - Cloud Run Admin
